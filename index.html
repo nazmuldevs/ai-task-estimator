@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Task Time Estimator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .estimation-panel, .analytics-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .complexity-slider {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .complexity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #27ae60;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .estimate-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .confidence-bar {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60);
+            transition: width 0.3s;
+        }
+
+        .historical-data {
+            margin-top: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .accuracy-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .comparison-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .comparison-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: end;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .chart-bar {
+            width: 80px;
+            background: linear-gradient(to top, #3498db, #5dade2);
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            padding: 10px 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .accuracy-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI-Powered Task Time Estimator</h1>
+            <p>Improving Project Timeline Accuracy Through Machine Learning</p>
+        </div>
+
+        <div class="main-content">
+            <div class="estimation-panel">
+                <h2 class="panel-title">📋 New Task Estimation</h2>
+                
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Implement user authentication">
+                </div>
+
+                <div class="form-group">
+                    <label for="taskType">Task Type</label>
+                    <select id="taskType">
+                        <option value="frontend">Frontend Development</option>
+                        <option value="backend">Backend Development</option>
+                        <option value="database">Database Work</option>
+                        <option value="testing">Testing & QA</option>
+                        <option value="bugfix">Bug Fix</option>
+                        <option value="research">Research & Design</option>
+                        <option value="integration">API Integration</option>
+                        <option value="deployment">Deployment</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">Task Description</label>
+                    <textarea id="taskDescription" placeholder="Detailed description of the task requirements..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="complexity">Complexity Level (1-10)</label>
+                    <input type="range" id="complexity" class="complexity-slider" min="1" max="10" value="5">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #7f8c8d; margin-top: 5px;">
+                        <span>Simple</span>
+                        <span id="complexityValue">5</span>
+                        <span>Complex</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="teamSize">Team Size</label>
+                    <select id="teamSize">
+                        <option value="1">Solo Developer</option>
+                        <option value="2">2 Developers</option>
+                        <option value="3-5">3-5 Developers</option>
+                        <option value="6+">6+ Developers</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority Level</label>
+                    <select id="priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="generateEstimate()">🔮 Generate AI Estimate</button>
+
+                <div id="estimateResult"></div>
+            </div>
+
+            <div class="analytics-panel">
+                <h2 class="panel-title">📊 Historical Analytics</h2>
+                
+                <div class="accuracy-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">87%</div>
+                        <div class="metric-label">AI Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">62%</div>
+                        <div class="metric-label">Human Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">156</div>
+                        <div class="metric-label">Tasks Analyzed</div>
+                    </div>
+                </div>
+
+                <div class="historical-data">
+                    <h3>Recent Predictions vs Actual</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>AI Estimate</th>
+                                <th>Actual Time</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicalTable">
+                            <tr>
+                                <td>User Dashboard</td>
+                                <td>16h</td>
+                                <td>18h</td>
+                                <td>89%</td>
+                            </tr>
+                            <tr>
+                                <td>API Authentication</td>
+                                <td>12h</td>
+                                <td>11h</td>
+                                <td>92%</td>
+                            </tr>
+                            <tr>
+                                <td>Database Migration</td>
+                                <td>8h</td>
+                                <td>9h</td>
+                                <td>89%</td>
+                            </tr>
+                            <tr>
+                                <td>Payment Integration</td>
+                                <td>24h</td>
+                                <td>22h</td>
+                                <td>92%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2 class="panel-title">📈 AI vs Traditional Estimation Comparison</h2>
+            <p>Comparing accuracy rates across different estimation methods</p>
+            
+            <div class="comparison-chart">
+                <div class="chart-bar" style="height: 60%;">
+                    <span>60%</span>
+                </div>
+                <div class="chart-bar" style="height: 75%;">
+                    <span>75%</span>
+                </div>
+                <div class="chart-bar" style="height: 87%;">
+                    <span>87%</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-around; margin-top: 10px; font-weight: 600; color: #7f8c8d;">
+                <span>Manual Estimates</span>
+                <span>Story Points</span>
+                <span>AI-Powered</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Historical data for realistic simulation
+        const historicalData = [
+            {task: 'User Registration', type: 'frontend', complexity: 4, actual: 14, estimated: 16},
+            {task: 'Email Verification', type: 'backend', complexity: 3, actual: 8, estimated: 9},
+            {task: 'Password Reset', type: 'backend', complexity: 5, actual: 12, estimated: 11},
+            {task: 'Profile Dashboard', type: 'frontend', complexity: 6, actual: 22, estimated: 20},
+            {task: 'File Upload', type: 'backend', complexity: 7, actual: 18, estimated: 17},
+            {task: 'Search Functionality', type: 'backend', complexity: 8, actual: 28, estimated: 26},
+            {task: 'Mobile Responsive', type: 'frontend', complexity: 5, actual: 16, estimated: 15},
+            {task: 'Unit Tests', type: 'testing', complexity: 4, actual: 12, estimated: 13}
+        ];
+
+        // Complexity multipliers for different task types
+        const taskTypeMultipliers = {
+            'frontend': 1.0,
+            'backend': 1.2,
+            'database': 1.3,
+            'testing': 0.8,
+            'bugfix': 0.6,
+            'research': 1.5,
+            'integration': 1.4,
+            'deployment': 0.7
+        };
+
+        // Team size multipliers
+        const teamSizeMultipliers = {
+            '1': 1.0,
+            '2': 0.7,
+            '3-5': 0.5,
+            '6+': 0.4
+        };
+
+        // Priority multipliers (for urgency factor)
+        const priorityMultipliers = {
+            'low': 0.9,
+            'medium': 1.0,
+            'high': 1.1,
+            'critical': 1.3
+        };
+
+        // Update complexity value display
+        document.getElementById('complexity').addEventListener('input', function() {
+            document.getElementById('complexityValue').textContent = this.value;
+        });
+
+        function generateEstimate() {
+            const taskTitle = document.getElementById('taskTitle').value;
+            const taskType = document.getElementById('taskType').value;
+            const complexity = parseInt(document.getElementById('complexity').value);
+            const teamSize = document.getElementById('teamSize').value;
+            const priority = document.getElementById('priority').value;
+            const description = document.getElementById('taskDescription').value;
+
+            if (!taskTitle) {
+                alert('Please enter a task title');
+                return;
+            }
+
+            // AI Estimation Algorithm
+            let baseHours = calculateBaseHours(taskType, complexity, description);
+            let teamAdjustedHours = baseHours * teamSizeMultipliers[teamSize];
+            let finalEstimate = teamAdjustedHours * priorityMultipliers[priority];
+            
+            // Add some AI "learning" variance based on historical data
+            let aiAdjustment = getAIAdjustment(taskType, complexity);
+            finalEstimate *= aiAdjustment;
+
+            // Calculate confidence based on historical accuracy
+            let confidence = calculateConfidence(taskType, complexity, description.length);
+
+            displayResult(finalEstimate, confidence, taskTitle);
+            addToHistoricalData(taskTitle, finalEstimate);
+        }
+
+        function calculateBaseHours(taskType, complexity, description) {
+            // Base calculation: complexity squared for exponential growth
+            let baseHours = Math.pow(complexity, 1.5) * 2;
+            
+            // Adjust for task type
+            baseHours *= taskTypeMultipliers[taskType];
+            
+            // Adjust for description detail (more detail = better estimate)
+            let descriptionFactor = description.length > 100 ? 0.95 : 1.1;
+            baseHours *= descriptionFactor;
+            
+            return baseHours;
+        }
+
+        function getAIAdjustment(taskType, complexity) {
+            // Simulate AI learning from historical data
+            let relevantTasks = historicalData.filter(task => 
+                task.type === taskType && Math.abs(task.complexity - complexity) <= 2
+            );
+            
+            if (relevantTasks.length === 0) return 1.0;
+            
+            // Calculate average accuracy factor from similar tasks
+            let accuracySum = relevantTasks.reduce((sum, task) => 
+                sum + (task.actual / task.estimated), 0
+            );
+            
+            return accuracySum / relevantTasks.length;
+        }
+
+        function calculateConfidence(taskType, complexity, descriptionLength) {
+            let baseConfidence = 70;
+            
+            // Higher confidence for tasks we have more data on
+            let taskTypeCount = historicalData.filter(task => task.type === taskType).length;
+            baseConfidence += Math.min(taskTypeCount * 2, 20);
+            
+            // Lower confidence for very complex tasks
+            if (complexity > 8) baseConfidence -= 15;
+            if (complexity < 3) baseConfidence += 10;
+            
+            // Better descriptions improve confidence
+            if (descriptionLength > 50) baseConfidence += 5;
+            if (descriptionLength > 150) baseConfidence += 5;
+            
+            return Math.min(Math.max(baseConfidence, 60), 95);
+        }
+
+        function displayResult(estimate, confidence, taskTitle) {
+            const hours = Math.round(estimate * 10) / 10;
+            const days = Math.round((hours / 8) * 10) / 10;
+            
+            const resultHTML = `
+                <div class="result-card">
+                    <h3>📊 Estimation Results</h3>
+                    <div class="estimate-value">${hours} hours</div>
+                    <p><strong>≈ ${days} working days</strong> (based on 8-hour workdays)</p>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>Confidence Level: ${confidence}%</strong>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${confidence}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 0.9rem; color: #7f8c8d; margin-top: 15px;">
+                        <p><strong>AI Analysis:</strong></p>
+                        <ul style="margin-left: 20px; line-height: 1.6;">
+                            <li>Task complexity factor: ${document.getElementById('complexity').value}/10</li>
+                            <li>Team efficiency bonus applied</li>
+                            <li>Historical accuracy: 87% average</li>
+                            <li>Recommendation: Add 10% buffer for unexpected issues</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('estimateResult').innerHTML = resultHTML;
+        }
+
+        function addToHistoricalData(taskTitle, estimate) {
+            // Simulate adding to historical data (in a real app, this would go to a database)
+            const tableBody = document.getElementById('historicalTable');
+            const newRow = tableBody.insertRow(0);
+            
+            // Simulate "actual" time (within ±20% of estimate for demo)
+            const actualTime = Math.round(estimate * (0.8 + Math.random() * 0.4) * 10) / 10;
+            const accuracy = Math.round((1 - Math.abs(actualTime - estimate) / actualTime) * 100);
+            
+            newRow.innerHTML = `
+                <td>${taskTitle}</td>
+                <td>${Math.round(estimate * 10) / 10}h</td>
+                <td>${actualTime}h</td>
+                <td>${accuracy}%</td>
+            `;
+            
+            // Keep only last 5 rows for demo
+            while (tableBody.rows.length > 5) {
+                tableBody.deleteRow(-1);
+            }
+        }
+
+        // Initialize with some demo data
+        window.onload = function() {
+            // Add some animation to the comparison chart
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.chart-bar');
+                bars.forEach((bar, index) => {
+                    bar.style.transition = 'height 1s ease-in-out';
+                    bar.style.animationDelay = `${index * 0.2}s`;
+                });
+            }, 500);
+        };
+    </script>
+</body>
+</html>
